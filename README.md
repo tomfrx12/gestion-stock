@@ -1,36 +1,56 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Gestion de stock
 
-## Getting Started
+Application Next.js (TypeScript) minimale pour gérer le stock d'articles.
 
-First, run the development server:
+## Présentation
+
+Ce projet est le début de mon apprentisage dans mon stage chez SkyNet Business Services
+
+Ce dépôt contient une petite application Next.js avec l'architecture `app/` (App Router). Elle expose une API pour la gestion du stock dans `app/api/stock/route.ts` et contient la logique d'accès aux données dans `lib/db.ts`.
+
+## Prérequis
+
+- Node.js 16 ou supérieur
+- npm
+
+## Installation
+
+1. Installer les dépendances :
+
+```bash
+npm install
+```
+
+2. Lancer en développement :
 
 ```bash
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+3. Construire pour la production :
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+```bash
+npm run build
+npm start
+```
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+## Structure principale
 
-## Learn More
+- `app/` : pages et routes (App Router)
+  - `app/api/stock/route.ts` : endpoints API pour la gestion du stock
+- `lib/db.ts` : point d'entrée pour la connexion / accès aux données
+- `public/` : fichiers statiques
+- `next.config.ts`, `tsconfig.json`, `package.json` : configuration du projet
 
-To learn more about Next.js, take a look at the following resources:
+## Configuration
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+- Si votre application utilise une base de données, configurez la connexion dans `lib/db.ts` ou via les variables d'environnement que vous y utiliserez.
+- Voir le fichier `app/api/stock/route.ts` pour connaître les routes exposées et les méthodes attendues (GET/POST/etc.).
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+## Utilisation rapide
 
-## Deploy on Vercel
+- Testez les endpoints API avec `curl`, Postman ou Insomnia vers `/api/stock` (ex: `http://localhost:3000/api/stock`).
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+## Auteur
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+Tom Fourneaux
