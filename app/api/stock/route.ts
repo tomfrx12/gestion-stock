@@ -20,6 +20,12 @@ export async function POST(req: Request) {
         return NextResponse.json({ error: "Champs obligatoires manquants" }, { status: 400 });
     }
 
+	const [existing] = await db.query("SELECT numero_de_serie FROM produits WHERE numero_de_serie = ?", [numero_de_serie]);
+        
+	if (existing.length > 0) {
+		return NextResponse.json({ error: "Ce numéro de série existe déjà en stock" }, { status: 400 });
+	}
+
     await db.query(
 		"INSERT INTO produits (date_de_commande, fournisseur, designation, numero_de_serie, adresse_mac, commentaire) VALUES (?, ?, ?, ?, ?, ?)",
 		[date_de_commande, fournisseur, designation, numero_de_serie, adresse_mac, commentaire]
@@ -29,5 +35,21 @@ export async function POST(req: Request) {
 	} catch (err) {
 		console.error("Erreur POST:", err);
 		return NextResponse.json({ error: "Erreur lors de la création" }, { status: 500 });
+	}
+}
+
+export async function DELETE(req: Request) {
+	try {
+		const { searchParams } = new URL(req.url);
+		const suppr = searchParams.get("suppr");
+
+		if (!suppr) return NextResponse.json({ error: "Numéro de série manquant" }, { status: 400 });
+
+		await db.query("DELETE FROM produits WHERE numero_de_serie = ?", [suppr]);
+
+		return NextResponse.json({ success: true });
+	} catch (err) {
+		console.error(err);
+		return NextResponse.json({ error: "Erreur lors de la suppression" }, { status: 500 });
 	}
 }
