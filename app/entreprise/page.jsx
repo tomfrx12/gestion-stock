@@ -40,7 +40,7 @@ export default function Stock() {
             reference_client: entreprise.reference_client,
             id_users: entreprise.id_users
         });
-        setEditingId(entreprise.id);
+        setEditingId(entreprise.id_entreprise);
         setShowForm(true);
         window.scrollTo({ top: 0, behavior: 'smooth' });
     }
@@ -56,7 +56,7 @@ export default function Stock() {
             const res = await fetch("/api/entreprise", {
                 method: method,
                 headers: { "Content-Type": "application/json" },
-                body: JSON.stringify(editingId ? { ...form, id: editingId } : form),
+                body: JSON.stringify(editingId ? { ...form, id_entreprise: editingId } : form),
             });
 
             const data = await res.json();
@@ -75,10 +75,10 @@ export default function Stock() {
         }
     }
 
-    async function handleDelete(id) {
+    async function handleDelete(id_entreprise) {
         setError("");
         try {
-            const res = await fetch(`/api/entreprise?suppr=${id}`, { method: "DELETE" });
+            const res = await fetch(`/api/entreprise?suppr=${id_entreprise}`, { method: "DELETE" });
             if (!res.ok) {
                 setError("Erreur lors de la suppression");
                 return;
@@ -155,7 +155,7 @@ export default function Stock() {
                     </thead>
                     <tbody>
                         {entreprises.slice(previous, next).map((entreprise) => (
-                            <tr key={entreprise.id} className="border-b hover:bg-gray-50">
+                            <tr key={entreprise.id_entreprise} className="border-b hover:bg-gray-50">
                                 <td className="p-3 font-medium">{entreprise.nom_entreprise}</td>
                                 <td className="p-3 text-gray-600">{entreprise.reference_client}</td>
                                 <td className="p-3 font-mono text-sm">{entreprise.id_users}</td>
@@ -163,7 +163,7 @@ export default function Stock() {
                                     <button onClick={() => startEdit(entreprise)} className="text-blue-600 bg-blue-50 hover:bg-blue-600 hover:text-white px-3 py-1 rounded transition-colors text-sm font-bold">
                                         Modifier
                                     </button>
-                                    <button onClick={() => handleDelete(entreprise.id)} className="text-red-600 bg-red-50 hover:bg-red-600 hover:text-white px-3 py-1 rounded transition-colors text-sm font-bold">
+                                    <button onClick={() => handleDelete(entreprise.id_entreprise)} className="text-red-600 bg-red-50 hover:bg-red-600 hover:text-white px-3 py-1 rounded transition-colors text-sm font-bold">
                                         Supprimer
                                     </button>
                                 </td>

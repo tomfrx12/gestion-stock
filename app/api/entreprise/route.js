@@ -14,12 +14,12 @@ export async function GET() {
 export async function POST(req) {
     try {
         const body = await req.json();
-        const { id_entreprise, nom_entreprise, reference_client, id_users } = body;
+        const { nom_entreprise, reference_client, id_users } = body;
 
         const errors = {};
         if (!nom_entreprise) return NextResponse.json({ error: "Un nom d'entreprise est requis.", errors: {nom_entreprise: "Un nom d'entreprise est requis." }}, {status: 400 });
         if (!reference_client) return NextResponse.json({ error: "Une référence client est requis.", errors: {reference_client: "La date estUne référence client est requis."}}, {status: 400 });
-        if (!id_users) return NextResponse.json({ error: "Au moins un utilisateurs est requis.", errors: {id_users: "Au moins un utilisateurs est requis." }}, {status: 400 });
+        // if (!id_users) return NextResponse.json({ error: "Au moins un utilisateurs est requis.", errors: {id_users: "Au moins un utilisateurs est requis." }}, {status: 400 });
 
         if (Object.keys(errors).length > 0) {
             return NextResponse.json({ error: "Validation échouée", errors }, { status: 400 });
@@ -36,15 +36,15 @@ export async function POST(req) {
         };
 
         
-        const [rowsName] = await db.query("SELECT nom_entreprise FROM produits WHERE nom_entreprise = ?", [nom_entreprise]);
+        const [rowsName] = await db.query("SELECT nom_entreprise FROM entreprise WHERE nom_entreprise = ?", [nom_entreprise]);
 
         if (rowsName.length > 0) {
             return NextResponse.json({ error: "Ce nom est déjà attribué", errors: {nom_entreprise: "Ce nom est déjà attribué" }}, {status: 400 });
         }
 
         await db.query(
-            "INSERT INTO entreprise (id_entreprise, nom_entreprise, reference_client, id_users) VALUES (?, ?, ?, ?,)",
-            [id_entreprise, nom_entreprise, reference_client, id_users]
+            "INSERT INTO entreprise (nom_entreprise, reference_client, id_users) VALUES (?, ?, ?)",
+            [nom_entreprise, reference_client, id_users]
         );
 
         return NextResponse.json({ message: "Entreprise ajouté" }, { status: 201 });
@@ -103,10 +103,10 @@ export async function PUT(req) {
         `;
         
         await db.query(sql, [
-            id_entreprise, 
             nom_entreprise, 
             reference_client.toUpperCase(), 
-            id_users
+            id_users,
+            id_entreprise 
         ]);
 
         return NextResponse.json({ message: "Mise à jour réussie" }, { status: 200 });
