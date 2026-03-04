@@ -17,10 +17,10 @@ export async function POST(req) {
         const { id, date_de_commande, fournisseur, designation, numero_de_serie, adresse_mac, commentaire } = body;
 
         const errors = {};
-        if (!date_de_commande) errors.date_de_commande = "La date est requis.";
-        if (!fournisseur) errors.fournisseur = "Le fournisseur est requis.";
-        if (!designation) errors.designation = "La désignation est requise.";
-        if (!numero_de_serie) errors.numero_de_serie = "Le numéro de série est requis.";
+        if (!date_de_commande) return NextResponse.json({ error: "La date est requise.", errors: {numero_de_serie: "La date est requise." }}, {status: 400 });
+        if (!fournisseur) return NextResponse.json({ error: "Le fournisseur est requis.", errors: {numero_de_serie: "Le fournisseur est requis." }}, {status: 400 });
+        if (!designation) return NextResponse.json({ error: "La désignation est requise.", errors: {numero_de_serie: "La désignation est requise." }}, {status: 400 });
+        if (!numero_de_serie) return NextResponse.json({ error: "Le numéro de série est requis.", errors: {numero_de_serie: "Le numéro de série est requis." }}, {status: 400 });
 
         if (Object.keys(errors).length > 0) {
             return NextResponse.json({ error: "Validation échouée", errors }, { status: 400 });
@@ -36,16 +36,26 @@ export async function POST(req) {
 			return NextResponse.json({ error: "Le numéro de série ne peut pas contenir d'espace", errors: { numero_de_serie: "Le numéro de série ne peut pas contenir d'espace" }}, { status: 400 });
 		};
 
-		
-        const [rowsMac] = await db.query("SELECT adresse_mac FROM produits WHERE adresse_mac = ?", [adresse_mac]);
+        if (body.adresse_mac && body.adresse_mac.trim() !== "") {
+            if (body.adresse_mac.includes(' ')) {
+                return NextResponse.json({ 
+                    error: "Format invalide", 
+                    errors: { adresse_mac: "L'adresse mac ne peut pas contenir d'espace" } 
+                }, { status: 400 });
+            }
 
-        if (rowsMac.length > 0) {
-            return NextResponse.json({ error: "Cet adresse mac existe déjà en stock", errors: {adresse_mac: "Cet adresse mac existe déjà en stock" }}, {status: 400 });
+            const [rowsMac] = await db.query(
+                "SELECT adresse_mac FROM produits WHERE adresse_mac = ?", 
+                [adresse_mac]
+            );
+
+            if (rowsMac.length > 0) {
+                return NextResponse.json({ 
+                    error: "Doublon détecté", 
+                    errors: { adresse_mac: "Cette adresse mac existe déjà en stock" } 
+                }, { status: 400 });
+            }
         }
-
-		if (body.adresse_mac.includes(' ')) {
-			return NextResponse.json({ error: "L'adresse mac ne peut pas contenir d'espace", errors: { adresse_mac: "L'adresse mac ne peut pas contenir d'espace" }}, { status: 400 });
-		};
 
         await db.query(
             "INSERT INTO produits (id, date_de_commande, fournisseur, designation, numero_de_serie, adresse_mac, commentaire) VALUES (?, ?, ?, ?, ?, ?, ?)",
@@ -92,13 +102,25 @@ export async function PUT(req) {
             return NextResponse.json({ error: "Ce numéro de série est déjà utilisé par un autre produit", errors: { numero_de_serie: "Ce numéro de série est déjà utilisé par un autre produit" }}, { status: 400 });
         }
 
-		const [rowsMac] = await db.query(
-            "SELECT id FROM produits WHERE adresse_mac = ? AND id != ?", 
-            [adresse_mac, id]
-        );
+        if (body.adresse_mac && body.adresse_mac.trim() !== "") {
+            if (body.adresse_mac.includes(' ')) {
+                return NextResponse.json({ 
+                    error: "L'adresse mac ne peut pas contenir d'espace", 
+                    errors: { adresse_mac: "L'adresse mac ne peut pas contenir d'espace" } 
+                }, { status: 400 });
+            }
 
-        if (rowsMac.length > 0) {
-            return NextResponse.json({ error: "Cet adresse mac est déjà utilisé par un autre produit", errors: { adresse_mac: "Cet adresse mac est déjà utilisé par un autre produit" }}, { status: 400 });
+            const [rowsMac] = await db.query(
+                "SELECT id FROM produits WHERE adresse_mac = ? AND id != ?", 
+                [adresse_mac, id]
+            );
+
+            if (rowsMac.length > 0) {
+                return NextResponse.json({ 
+                    error: "Cette adresse mac existe déjà en stock", 
+                    errors: { adresse_mac: "Cette adresse mac existe déjà en stock" } 
+                }, { status: 400 });
+            }
         }
 
         const sql = `

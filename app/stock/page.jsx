@@ -118,7 +118,7 @@ export default function Stock() {
                         </h2>
                         <div className="flex flex-col">
                             <label className="text-sm font-semibold mb-1">Date</label>
-                            <input className="border p-2 rounded" type="date" value={form.date_de_commande} onChange={(e) => setForm({ ...form, date_de_commande: e.target.value })} required />
+                            <input className="border p-2 rounded" type="date" value={form.date_de_commande} onChange={(e) => setForm({ ...form, date_de_commande: e.target.value })} />
                         </div>
 
                         <div className="flex flex-col">
@@ -128,13 +128,13 @@ export default function Stock() {
 
                         <div className="flex flex-col col-span-2">
                             <label className="text-sm font-semibold mb-1">Désignation</label>
-                            <input className="border p-2 rounded" type="text" value={form.designation} onChange={(e) => setForm({ ...form, designation: e.target.value })} required />
+                            <input className="border p-2 rounded" type="text" value={form.designation} onChange={(e) => setForm({ ...form, designation: e.target.value })} />
                         </div>
 
                         <div className="col-span-2 grid grid-cols-2 gap-4">
                             <div className="flex flex-col">
                                 <label className="text-sm font-semibold mb-1">N° de Série</label>
-                                <input className="border p-2 rounded uppercase" type="text" value={form.numero_de_serie} onChange={(e) => setForm({ ...form, numero_de_serie: e.target.value.toUpperCase() })} required />
+                                <input className="border p-2 rounded uppercase" type="text" value={form.numero_de_serie} onChange={(e) => setForm({ ...form, numero_de_serie: e.target.value.toUpperCase() })} />
                             </div>
 
                             <div className="flex flex-col">
