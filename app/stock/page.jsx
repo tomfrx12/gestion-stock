@@ -5,6 +5,9 @@ export default function Stock() {
     const [produits, setProduits] = useState([]);
     const [showForm, setShowForm] = useState(false);
     const [editingId, setEditingId] = useState(null);
+    const [previous, setPrevious] = useState(0);
+    const [next, setNext] = useState(10);
+    const [rowsShown, setRowsShown] = useState(10);
     const [form, setForm] = useState({
         date_de_commande: "",
         fournisseur: "",
@@ -30,7 +33,9 @@ export default function Stock() {
         }
     }
 
-    useEffect(() => { fetchProduits(); }, []);
+    useEffect(() => { 
+        fetchProduits(); 
+    }, []);
 
     function startEdit(produit) {
         setForm({
@@ -149,7 +154,7 @@ export default function Stock() {
 
             {error && <p className="text-red-600 bg-red-100 p-3 my-4 rounded">{error}</p>}
 
-            <div className="overflow-x-auto shadow-md rounded-lg">
+            <div className="shadow-md rounded-lg">
                 <table className="w-full text-left bg-white">
                     <thead className="bg-gray-200 text-gray-700">
                         <tr>
@@ -159,9 +164,20 @@ export default function Stock() {
                             <th className="p-3">Date</th>
                             <th className="p-3 text-right">Actions</th>
                         </tr>
+                        <tr>
+                            <th className="p-3 flex gap-2 items-center">
+                                <label>Nombre de lignes</label>
+                                <select className="border border-solid border-black rounded-sm p-1 bg-white" name="nb_row_shown" onChange={(e) => (setPrevious(Number(0)), setNext(Number(e.target.value)), setRowsShown(Number(e.target.value)), console.log(previous, next, rowsShown))}>
+                                    <option value={10}>10</option>
+                                    <option value={25}>25</option>
+                                    <option value={50}>50</option>
+                                    <option value={100}>100</option>
+                                </select>
+                            </th>
+                        </tr>
                     </thead>
                     <tbody>
-                        {produits.map((produit) => (
+                        {produits.slice(previous, next).map((produit) => (
                             <tr key={produit.id} className="border-b hover:bg-gray-50">
                                 <td className="p-3 font-medium">{produit.designation}</td>
                                 <td className="p-3 text-gray-600">{produit.fournisseur}</td>
@@ -179,6 +195,35 @@ export default function Stock() {
                         ))}
                     </tbody>
                 </table>
+                <div className="p-3 flex justify-center gap-4">
+                <button 
+                    className={`border border-gray-400 rounded-md p-4 max-h-4 max-w-4 flex items-center justify-center text-center ${previous === 0 ? "opacity-50 cursor-not-allowed" : ""}`}
+                    onClick={() => {
+                    const futurPrevious = previous - rowsShown;
+
+                    if (futurPrevious >= 0) {
+                        setPrevious(futurPrevious);
+                        setNext(next - rowsShown);
+                    }
+                    }}
+                    disabled={previous === 0}
+                >
+                    {`<`}
+                </button>
+
+                <button 
+                    className={`border border-gray-400 rounded-md p-4 max-h-4 max-w-4 flex items-center justify-center text-center ${next >= produits.length ? "opacity-50 cursor-not-allowed" : ""}`}
+                    onClick={() => {                    
+                    if (next < produits.length) {
+                        setPrevious(previous + rowsShown);
+                        setNext(next + rowsShown);
+                    }
+                    }}
+                    disabled={next >= produits.length}
+                >
+                    {`>`}
+                </button>
+                </div>
             </div>
         </main>
     );
