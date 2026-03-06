@@ -17,7 +17,6 @@ export default function Stock() {
         commentaire: "",
     });
     const [error, setError] = useState("");
-    const [errors, setErrors] = useState({});
 
     async function fetchProduits() {
         try {
@@ -34,7 +33,7 @@ export default function Stock() {
     }
 
     useEffect(() => { 
-        fetchProduits(); 
+        fetchProduits();
     }, []);
 
     function startEdit(produit) {
@@ -54,7 +53,6 @@ export default function Stock() {
     async function handleSubmit(e) {
         e.preventDefault();
         setError("");
-        setErrors({});
         
         const method = editingId ? "PUT" : "POST";
 
