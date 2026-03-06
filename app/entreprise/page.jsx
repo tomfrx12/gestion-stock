@@ -1,7 +1,8 @@
 "use client";
+import Link from "next/link";
 import { useEffect, useState } from "react";
 
-export default function Stock() {
+export default function Entreprise() {
     const [entreprises, setEntreprise] = useState([]);
     const [showForm, setShowForm] = useState(false);
     const [editingId, setEditingId] = useState(null);
@@ -9,12 +10,15 @@ export default function Stock() {
     const [next, setNext] = useState(10);
     const [rowsShown, setRowsShown] = useState(10);
     const [form, setForm] = useState({
-        nom_entreprise: "",
+        nom: "",
         reference_client: "",
-        id_users: ""
+        firstname: "",
+        name: "",
+        num_tel_fixe: "",
+        num_tel_portable: "",
+        adresse_mail: "",
     });
     const [error, setError] = useState("");
-    const [errors, setErrors] = useState({});
 
     async function fetchEntreprise() {
         try {
@@ -36,11 +40,15 @@ export default function Stock() {
 
     function startEdit(entreprise) {
         setForm({
-            nom_entreprise: entreprise.nom_entreprise,
-            reference_client: entreprise.reference_client,
-            id_users: entreprise.id_users
+                nom: entreprise.nom,
+                reference_client: entreprise.reference_client,
+                name: "",
+                firstname: "",
+                num_tel_fixe: "",
+                num_tel_portable: "",
+                adresse_mail: "",
         });
-        setEditingId(entreprise.id_entreprise);
+        setEditingId(entreprise.id);
         setShowForm(true);
         window.scrollTo({ top: 0, behavior: 'smooth' });
     }
@@ -48,7 +56,6 @@ export default function Stock() {
     async function handleSubmit(e) {
         e.preventDefault();
         setError("");
-        setErrors({});
         
         const method = editingId ? "PUT" : "POST";
 
@@ -56,7 +63,7 @@ export default function Stock() {
             const res = await fetch("/api/entreprise", {
                 method: method,
                 headers: { "Content-Type": "application/json" },
-                body: JSON.stringify(editingId ? { ...form, id_entreprise: editingId } : form),
+                body: JSON.stringify(editingId ? { ...form, id: editingId } : form),
             });
 
             const data = await res.json();
@@ -66,7 +73,15 @@ export default function Stock() {
                 return;
             }
 
-            setForm({ nom_entreprise: "", reference_client: "", id_users: "" });
+            setForm({        
+                nom: "",
+                reference_client: "",
+                prenom: "",
+                nom: "",
+                num_tel_fixe: "",
+                num_tel_portable: "",
+                adresse_mail: "", 
+            });
             setEditingId(null);
             setShowForm(false);
             fetchEntreprise();
@@ -75,10 +90,10 @@ export default function Stock() {
         }
     }
 
-    async function handleDelete(id_entreprise) {
+    async function handleDelete(id) {
         setError("");
         try {
-            const res = await fetch(`/api/entreprise?suppr=${id_entreprise}`, { method: "DELETE" });
+            const res = await fetch(`/api/entreprise?suppr=${id}`, { method: "DELETE" });
             if (!res.ok) {
                 setError("Erreur lors de la suppression");
                 return;
@@ -111,17 +126,38 @@ export default function Stock() {
                             {editingId ? `Modification de l'entreprise` : "Nouvelle entreprise"}
                         </h2>
                         <div className="flex flex-col">
-                            <label className="test-sm font-semibold mb-1">Nom</label>
-                            <input className="border p-2 rounded" type="text" value={form.nom_entreprise} onChange={(e) => setForm({ ...form, nom_entreprise: e.target.value })}/>
+                            <label className="text-sm font-semibold mb-1">Nom</label>
+                            <input className="border p-2 rounded" type="text" value={form.nom} onChange={(e) => setForm({ ...form, nom: e.target.value })}/>
                         </div>
                         <div className="flex flex-col">
-                            <label className="test-sm font-semibold mb-1">Référence Client</label>
+                            <label className="text-sm font-semibold mb-1">Référence Client</label>
                             <input className="border p-2 rounded" type="text" value={form.reference_client} onChange={(e) => setForm({ ...form, reference_client: e.target.value.toUpperCase() })}/>
                         </div>
-                        <div className="flex flex-col col-span-2">
-                            <label className="test-sm font-semibold mb-1">Utilisateurs</label>
-                            <input className="border p-2 rounded" placeholder="Ex: Gérant, Employés, ..." value={form.id_users} onChange={(e) => setForm({ ...form, id_users: e.target.value })}/>
-                        </div>
+                        {!editingId && (
+                            <>
+                                <span className="col-span-2 border border-blue-400 my-4"></span>
+                                <div className="flex flex-col">
+                                    <label className="text-sm font-semibold mb-1">Nom du fondateur</label>
+                                    <input className="border p-2 rounded" type="text" value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })}/>
+                                </div>
+                                <div className="flex flex-col">
+                                    <label className="text-sm font-semibold mb-1">Prénom du fondateur</label>
+                                    <input className="border p-2 rounded" type="text" value={form.firstname} onChange={(e) => setForm({ ...form, firstname: e.target.value })}/>
+                                </div>
+                                <div className="flex flex-col">
+                                    <label className="text-sm font-semibold mb-1">Numéro de téléphone fixe</label>
+                                    <input className="border p-2 rounded" type="text" value={form.num_tel_fixe} onChange={(e) => setForm({ ...form, num_tel_fixe: e.target.value })}/>
+                                </div>
+                                <div className="flex flex-col">
+                                    <label className="text-sm font-semibold mb-1">Numéro de téléphone portable</label>
+                                    <input className="border p-2 rounded" type="text" value={form.num_tel_portable} onChange={(e) => setForm({ ...form, num_tel_portable: e.target.value })}/>
+                                </div>
+                                <div className="col-span-2 flex flex-col">
+                                    <label className="text-sm font-semibold mb-1">Adresse mail</label>
+                                    <input className="border p-2 rounded" type="text" value={form.adresse_mail} onChange={(e) => setForm({ ...form, adresse_mail: e.target.value })}/>
+                                </div>
+                            </>
+                        )}
                         
                         <button type="submit" className={`col-span-2 text-white font-bold py-2 px-4 rounded transition shadow ${editingId ? "bg-orange-500 hover:bg-orange-600" : "bg-blue-500 hover:bg-blue-600"}`}>
                             {editingId ? "Enregistrer les modifications" : "Ajouter l'entreprise"}
@@ -138,7 +174,7 @@ export default function Stock() {
                         <tr>
                             <th className="p-3">Nom</th>
                             <th className="p-3">Référence Client</th>
-                            <th className="p-3">Utilisateurs</th>
+                            <th className="p-3">Fondateur</th>
                             <th className="p-3 text-right">Actions</th>
                         </tr>
                         <tr>
@@ -155,50 +191,56 @@ export default function Stock() {
                     </thead>
                     <tbody>
                         {entreprises.slice(previous, next).map((entreprise) => (
-                            <tr key={entreprise.id_entreprise} className="border-b hover:bg-gray-50">
-                                <td className="p-3 font-medium">{entreprise.nom_entreprise}</td>
+                            <tr key={entreprise.id} className="border-b hover:bg-gray-50">
+                                <td className="p-3 font-medium">{entreprise.nom}</td>
                                 <td className="p-3 text-gray-600">{entreprise.reference_client}</td>
-                                <td className="p-3 font-mono text-sm">{entreprise.id_users}</td>
+                                <td className="p-3 text-gray-600">{entreprise.name + ' ' + entreprise.firstname}</td>
                                 <td className="p-3 text-right space-x-2">
-                                    <button onClick={() => startEdit(entreprise)} className="text-blue-600 bg-blue-50 hover:bg-blue-600 hover:text-white px-3 py-1 rounded transition-colors text-sm font-bold">
+                                    <button onClick={() => startEdit(entreprise)} className="text-orange-600 bg-orange-50 hover:bg-orange-600 hover:text-white px-3 py-1 rounded transition-colors text-sm font-bold">
                                         Modifier
                                     </button>
-                                    <button onClick={() => handleDelete(entreprise.id_entreprise)} className="text-red-600 bg-red-50 hover:bg-red-600 hover:text-white px-3 py-1 rounded transition-colors text-sm font-bold">
+                                    <button onClick={() => handleDelete(entreprise.id)} className="text-red-600 bg-red-50 hover:bg-red-600 hover:text-white px-3 py-1 rounded transition-colors text-sm font-bold">
                                         Supprimer
                                     </button>
+                                    <Link 
+                                        href={`/entreprise/${encodeURIComponent(entreprise.nom)}`}
+                                        className="text-blue-600 bg-blue-50 hover:bg-blue-600 hover:text-white px-3 py-1 rounded transition-colors text-sm font-bold inline-block"
+                                    >
+                                        Accéder
+                                    </Link>
                                 </td>
                             </tr>
                         ))}
                     </tbody>
                 </table>
                 <div className="p-3 flex justify-center gap-4">
-                <button 
-                    className={`border border-gray-400 rounded-md p-4 max-h-4 max-w-4 flex items-center justify-center text-center ${previous === 0 ? "opacity-50 cursor-not-allowed" : ""}`}
-                    onClick={() => {
-                    const futurPrevious = previous - rowsShown;
+                    <button 
+                        className={`border border-gray-400 rounded-md p-4 max-h-4 max-w-4 flex items-center justify-center text-center ${previous === 0 ? "opacity-50 cursor-not-allowed" : ""}`}
+                        onClick={() => {
+                        const futurPrevious = previous - rowsShown;
 
-                    if (futurPrevious >= 0) {
-                        setPrevious(futurPrevious);
-                        setNext(next - rowsShown);
-                    }
-                    }}
-                    disabled={previous === 0}
-                >
-                    {`<`}
-                </button>
+                        if (futurPrevious >= 0) {
+                            setPrevious(futurPrevious);
+                            setNext(next - rowsShown);
+                        }
+                        }}
+                        disabled={previous === 0}
+                    >
+                        {`<`}
+                    </button>
 
-                <button 
-                    className={`border border-gray-400 rounded-md p-4 max-h-4 max-w-4 flex items-center justify-center text-center ${next >= entreprises.length ? "opacity-50 cursor-not-allowed" : ""}`}
-                    onClick={() => {                    
-                    if (next < entreprises.length) {
-                        setPrevious(previous + rowsShown);
-                        setNext(next + rowsShown);
-                    }
-                    }}
-                    disabled={next >= entreprises.length}
-                >
-                    {`>`}
-                </button>
+                    <button 
+                        className={`border border-gray-400 rounded-md p-4 max-h-4 max-w-4 flex items-center justify-center text-center ${next >= entreprises.length ? "opacity-50 cursor-not-allowed" : ""}`}
+                        onClick={() => {                    
+                        if (next < entreprises.length) {
+                            setPrevious(previous + rowsShown);
+                            setNext(next + rowsShown);
+                        }
+                        }}
+                        disabled={next >= entreprises.length}
+                    >
+                        {`>`}
+                    </button>
                 </div>
             </div>
         </main>
