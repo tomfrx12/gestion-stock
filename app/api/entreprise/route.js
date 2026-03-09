@@ -3,7 +3,7 @@ import { db } from "../../../lib/db";
 
 export async function GET() {
     try {
-        const [rows] = await db.query("SELECT * FROM entreprise JOIN users ON entreprise.id_users = users.id;");
+        const [rows] = await db.query("SELECT * FROM entreprise");
         return NextResponse.json(rows);
     } catch (err) {
         console.error("Erreur GET:", err);
@@ -14,13 +14,11 @@ export async function GET() {
 export async function POST(req) {
     try {
         const body = await req.json();
-        const { nom, reference_client, name, firstname, num_tel_fixe, num_tel_portable, adresse_mail } = body;
+        const { nom, reference_client } = body;
 
         const errors = {};
         if (!nom) return NextResponse.json({ error: "Un nom d'entreprise est requis."}, {status: 400 });
         if (!reference_client) return NextResponse.json({ error: "Une référence client est requis."}, {status: 400 });
-        if (!name) return NextResponse.json({ error: "Le nom du fondateur est requis."}, {status: 400 });
-        if (!adresse_mail) return NextResponse.json({ error: "Une adresse mail est requise."}, {status: 400 });
 
         if (Object.keys(errors).length > 0) {
             return NextResponse.json({ error: "Validation échouée" }, { status: 400 });
@@ -32,10 +30,13 @@ export async function POST(req) {
             return NextResponse.json({ error: "Cette référence client existe déjà"}, {status: 400 });
         }
         
-        if (body.reference_client.includes(' ')) {
-            return NextResponse.json({ error: "La référence client ne peut pas contenir d'espace"}, { status: 400 });
-        };
-
+        const isOnlyDigits = /^[0-9]+$/.test(body.reference_client);
+        if (!isOnlyDigits) {
+            return NextResponse.json(
+                { error: "La référence client doit contenir uniquement des chiffres (pas de lettres, d'espaces ou de symboles)" }, 
+                { status: 400 }
+            );
+        }
         
         const [rowsName] = await db.query("SELECT nom FROM entreprise WHERE nom = ?", [nom]);
 
@@ -43,23 +44,9 @@ export async function POST(req) {
             return NextResponse.json({ error: "Ce nom est déjà attribué"}, {status: 400 });
         }
 
-        const [rowsFondateur] = await db.query("SELECT name, firstname, num_tel_fixe, num_tel_portable, adresse_mail FROM users WHERE name = ? AND firstname = ? AND num_tel_fixe = ? AND num_tel_portable = ? AND adresse_mail = ?",
-            [name, firstname, num_tel_fixe, num_tel_portable, adresse_mail]
-        );
-
-        if (rowsFondateur.length > 0) {
-            return NextResponse.json({ error: "Ce fondateur existe déjà"}, {status: 400 });
-        }
-
-        const [userResult] = await db.query(
-            "INSERT INTO users (name, firstname, num_tel_fixe, num_tel_portable, adresse_mail) VALUES (?, ?, ?, ?, ?)",
-            [name, firstname, num_tel_fixe, num_tel_portable, adresse_mail]
-        );
-
-        const newUserId = userResult.insertId;
         await db.query(
-            "INSERT INTO entreprise (nom, reference_client, id_users) VALUES (?, ?, ?)",
-            [nom, reference_client, newUserId]
+            "INSERT INTO entreprise (nom, reference_client) VALUES (?, ?)",
+            [nom, reference_client]
         );
 
         return NextResponse.json({ message: "Entreprise ajouté" }, { status: 201 });
@@ -121,17 +108,12 @@ export async function PUT(req) {
             }, { status: 400 });
         }
 
-        const sql = `
-            UPDATE entreprise 
-            SET nom = ?, reference_client = ?
-            WHERE id = ?
-        `;
-        
-        await db.query(sql, [
-            nom, 
-            reference_client.toUpperCase(), 
-            id
-        ]);
+        await db.query(
+            `UPDATE entreprise 
+            SET nom = ?, reference_client = ? 
+            WHERE id = ?`,
+            [nom, reference_client, id]
+        );
 
         return NextResponse.json({ message: "Entreprise mise à jour avec succès" }, { status: 200 });
 

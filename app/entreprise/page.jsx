@@ -12,11 +12,6 @@ export default function Entreprise() {
     const [form, setForm] = useState({
         nom: "",
         reference_client: "",
-        firstname: "",
-        name: "",
-        num_tel_fixe: "",
-        num_tel_portable: "",
-        adresse_mail: "",
     });
     const [error, setError] = useState("");
 
@@ -42,11 +37,6 @@ export default function Entreprise() {
         setForm({
                 nom: entreprise.nom,
                 reference_client: entreprise.reference_client,
-                name: "",
-                firstname: "",
-                num_tel_fixe: "",
-                num_tel_portable: "",
-                adresse_mail: "",
         });
         setEditingId(entreprise.id);
         setShowForm(true);
@@ -75,12 +65,7 @@ export default function Entreprise() {
 
             setForm({        
                 nom: "",
-                reference_client: "",
-                prenom: "",
-                nom: "",
-                num_tel_fixe: "",
-                num_tel_portable: "",
-                adresse_mail: "", 
+                reference_client: "", 
             });
             setEditingId(null);
             setShowForm(false);
@@ -133,31 +118,6 @@ export default function Entreprise() {
                             <label className="text-sm font-semibold mb-1">Référence Client</label>
                             <input className="border p-2 rounded" type="text" value={form.reference_client} onChange={(e) => setForm({ ...form, reference_client: e.target.value.toUpperCase() })}/>
                         </div>
-                        {!editingId && (
-                            <>
-                                <span className="col-span-2 border border-blue-400 my-4"></span>
-                                <div className="flex flex-col">
-                                    <label className="text-sm font-semibold mb-1">Nom du fondateur</label>
-                                    <input className="border p-2 rounded" type="text" value={form.name} onChange={(e) => setForm({ ...form, name: e.target.value })}/>
-                                </div>
-                                <div className="flex flex-col">
-                                    <label className="text-sm font-semibold mb-1">Prénom du fondateur</label>
-                                    <input className="border p-2 rounded" type="text" value={form.firstname} onChange={(e) => setForm({ ...form, firstname: e.target.value })}/>
-                                </div>
-                                <div className="flex flex-col">
-                                    <label className="text-sm font-semibold mb-1">Numéro de téléphone fixe</label>
-                                    <input className="border p-2 rounded" type="text" value={form.num_tel_fixe} onChange={(e) => setForm({ ...form, num_tel_fixe: e.target.value })}/>
-                                </div>
-                                <div className="flex flex-col">
-                                    <label className="text-sm font-semibold mb-1">Numéro de téléphone portable</label>
-                                    <input className="border p-2 rounded" type="text" value={form.num_tel_portable} onChange={(e) => setForm({ ...form, num_tel_portable: e.target.value })}/>
-                                </div>
-                                <div className="col-span-2 flex flex-col">
-                                    <label className="text-sm font-semibold mb-1">Adresse mail</label>
-                                    <input className="border p-2 rounded" type="text" value={form.adresse_mail} onChange={(e) => setForm({ ...form, adresse_mail: e.target.value })}/>
-                                </div>
-                            </>
-                        )}
                         
                         <button type="submit" className={`col-span-2 text-white font-bold py-2 px-4 rounded transition shadow ${editingId ? "bg-orange-500 hover:bg-orange-600" : "bg-blue-500 hover:bg-blue-600"}`}>
                             {editingId ? "Enregistrer les modifications" : "Ajouter l'entreprise"}
@@ -174,7 +134,6 @@ export default function Entreprise() {
                         <tr>
                             <th className="p-3">Nom</th>
                             <th className="p-3">Référence Client</th>
-                            <th className="p-3">Fondateur</th>
                             <th className="p-3 text-right">Actions</th>
                         </tr>
                         <tr>
@@ -194,7 +153,6 @@ export default function Entreprise() {
                             <tr key={entreprise.id} className="border-b hover:bg-gray-50">
                                 <td className="p-3 font-medium">{entreprise.nom}</td>
                                 <td className="p-3 text-gray-600">{entreprise.reference_client}</td>
-                                <td className="p-3 text-gray-600">{entreprise.name + ' ' + entreprise.firstname}</td>
                                 <td className="p-3 text-right space-x-2">
                                     <button onClick={() => startEdit(entreprise)} className="text-orange-600 bg-orange-50 hover:bg-orange-600 hover:text-white px-3 py-1 rounded transition-colors text-sm font-bold">
                                         Modifier
