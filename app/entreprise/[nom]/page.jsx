@@ -19,6 +19,7 @@ export default function PageEntreprise({ params }) {
         adresse_mail: ""
     });
     const [showForm, setShowForm] = useState(false);
+    const [error, setError] = useState("");
 
     async function fetchEntreprise() {
         try {
@@ -33,8 +34,10 @@ export default function PageEntreprise({ params }) {
     }
 
     async function fetchUsers() {
+        if (!nomUrl) return;
+        
         try {
-            const res = await fetch(`/api/users`);
+            const res = await fetch(`/api/users?nom_entreprise=${encodeURIComponent(nomUrl)}`);
             if (res.ok) {
                 const data = await res.json();
                 setUsers(data);
@@ -44,34 +47,42 @@ export default function PageEntreprise({ params }) {
         }
     }
 
-    // async function fetchEmailCount(setCount) {
-    //     try {
-    //         const res = await fetch("/api/stats/emails");
-    //         if (!res.ok) throw new Error("Erreur lors de la récupération");
+    async function fetchEmailCount(setCount) {
+        try {
+            const res = await fetch(`/api/stats/emails?nom_entreprise=${encodeURIComponent(nomUrl)}`);
+            if (!res.ok) throw new Error("Erreur lors de la récupération");
             
-    //         const data = await res.json();
-    //         setCount(data.count);
-    //     } catch (err) {
-    //         console.error("Erreur compteur emails:", err.message);
-    //     }
-    // }
+            const data = await res.json();
+            setCount(data.count);
+        } catch (err) {
+            console.error("Erreur compteur emails:", err.message);
+        }
+    }
 
     useEffect(() => {
         fetchEntreprise();
-        // fetchEmailCount(setCount);
+        fetchEmailCount(setCount);
         fetchUsers();
     }, []);
 
     async function handleSubmit(e) {
         e.preventDefault();
-        
-        const method = editingId ? "PUT" : "POST";
+        setError("");
 
         try {
+            // const res = await fetch("/api/users", {
+            //     method: editingId ? "PUT" : "POST",
+            //     headers: { "Content-Type": "application/json" },
+            //     body: JSON.stringify( editingId ? { ...form, id: editingId, id_entreprise: entreprise.id } : form ),
+            // });
+
             const res = await fetch("/api/users", {
-                method: method,
+                method: "POST",
                 headers: { "Content-Type": "application/json" },
-                body: JSON.stringify(editingId ? { ...form, id: editingId } : form),
+                body: JSON.stringify({
+                    ...form,
+                    id_entreprise: entreprise.id
+                }),
             });
 
             const data = await res.json();
@@ -93,6 +104,7 @@ export default function PageEntreprise({ params }) {
             fetchUsers();
         } catch (err) {
             setError(`Erreur : ${err.message}`);
+            
         }
     }
 
@@ -174,6 +186,8 @@ export default function PageEntreprise({ params }) {
                     </form>
                 </section>
             )}
+
+            {error && <p className="max-w-4xl mx-auto text-red-600 bg-red-100 p-3 my-4 rounded">{error}</p>}
             
             {/* <div className="max-w-4xl mx-auto bg-white shadow rounded-lg p-6 border border-gray-200">
                 <div className="flex flex-col gap-4">
@@ -247,8 +261,8 @@ export default function PageEntreprise({ params }) {
                         <tbody>
                             {users.map((user) => (
                                 <tr key={user.id} className="border-b hover:bg-gray-50">
-                                    <td className="p-3">{user.firstname}</td>
                                     <td className="p-3">{user.name}</td>
+                                    <td className="p-3">{user.firstname}</td>
                                     <td className="p-3">{user.num_tel_fixe}</td>
                                     <td className="p-3">{user.num_tel_portable}</td>
                                     <td className="p-3">{user.adresse_mail}</td>
