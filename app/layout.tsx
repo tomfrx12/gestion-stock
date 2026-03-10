@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import "./globals.css";
+import Sidebar from "../components/Sidebar";
 
 export const metadata: Metadata = {
     title: "Gestion Stock",
@@ -9,8 +10,11 @@ export const metadata: Metadata = {
 export default function RootLayout({ children }: Readonly<{ children: React.ReactNode; }>) {
     return (
         <html lang="fr">
-            <body>
-                {children}
+            <body className="antialiased">
+                <Sidebar />
+                <div className="min-h-screen">
+                    {children}
+                </div>
             </body>
         </html>
     );
