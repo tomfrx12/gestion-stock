@@ -24,55 +24,18 @@ export async function GET(req) {
     }
 }
 
-// export async function POST(req) {
-//     try {
-//         const body = await req.json();
-//         const { name, firstname, num_tel_fixe, num_tel_portable, adresse_mail } = body;
-
-//         const isOnlyDigitsNumTelFixe = /^[0-9 ]+$/.test(body.num_tel_fixe);
-//         if (!isOnlyDigitsNumTelFixe) {
-//             return NextResponse.json(
-//                 { error: "Le numéro téléphone fixe doit contenir uniquement des chiffres (pas de lettres, ou de symboles)" }, 
-//                 { status: 400 }
-//             );
-//         }
-
-//         const isOnlyDigitsNumTelPortable = /^[0-9 ]+$/.test(body.num_tel_portable);
-//         if (!isOnlyDigitsNumTelPortable) {
-//             return NextResponse.json(
-//                 { error: "Le numéro téléphone portable doit contenir uniquement des chiffres (pas de lettres, ou de symboles)" }, 
-//                 { status: 400 }
-//             );
-//         }
-
-//         const isIncludeAt = /@/.test(body.adresse_mail);
-//         if (!isIncludeAt) {
-//             return NextResponse.json(
-//                 { error: "L'adresse mail est invalide (veuillez rajouter l'arobase)" }, 
-//                 { status: 400 }
-//             );
-//         }
-
-//         await db.query(
-//             "INSERT INTO users (name, firstname, num_tel_fixe, num_tel_portable, adresse_mail) VALUES (?, ?, ?, ?, ?)",
-//             [name, firstname, num_tel_fixe, num_tel_portable, adresse_mail]
-//         );
-
-//         return NextResponse.json({ message: "Utilisateur ajouté" }, { status: 201 });
-//     } catch (err) {
-//         console.error("Erreur POST:", err);
-//         return NextResponse.json({ error: "Erreur lors de la création" }, { status: 500 });
-//     }
-// }
-
 export async function POST(req) {
     try {
         const body = await req.json();
         const { name, firstname, num_tel_fixe, num_tel_portable, adresse_mail, id_entreprise } = body;
 
-        // if (!adresse_mail.includes('@')) {
-        //     return NextResponse.json({ error: "Email invalide" }, { status: 400 });
-        // }
+        if (!name) { return NextResponse.json({ error: "Nom d'utilisateur manquant"}, { status: 400})};
+        if (!firstname) { return NextResponse.json({ error: "Prénom d'utilisateur manquant"}, { status: 400})};
+        if (!adresse_mail) { return NextResponse.json({ error: "Adresse mail d'utilisateur manquant"}, { status: 400})};
+
+        if (!adresse_mail.includes('@')) {
+            return NextResponse.json({ error: "Email invalide" }, { status: 400 });
+        }
 
         const [resultUser] = await db.query(
             `INSERT INTO users (name, firstname, num_tel_fixe, num_tel_portable, adresse_mail) 
@@ -95,22 +58,51 @@ export async function POST(req) {
     }
 }
 
-// export async function DELETE(req) {
-//     try {
-//         const { searchParams } = new URL(req.url);
-//         const suppr = searchParams.get("suppr");
+export async function DELETE(req) {
+    try {
+        const { searchParams } = new URL(req.url);
+        const suppr = searchParams.get("suppr");
 
-//         if (!suppr) {
-//             return NextResponse.json({ error: "ID manquant" }, { status: 400 });
-//         }
+        if (!suppr) {
+            return NextResponse.json({ error: "ID manquant" }, { status: 400 });
+        }
 
-//         await db.query("UPDATE entreprise SET id_users = NULL WHERE id_users = ?", [suppr]);
-//         await db.query("DELETE FROM users WHERE id = ?", [suppr]);
+        await db.query("DELETE FROM membre WHERE id_user = ?", [suppr]);
 
-//         return NextResponse.json({ message: "Utilisateur supprimé avec succès" }, { status: 200 });
+        const [result] = await db.query("DELETE FROM users WHERE id = ?", [suppr]);
 
-//     } catch (err) {
-//         console.error(err);
-//         return NextResponse.json({ error: "Erreur lors de la suppression" }, { status: 500 });
-//     }
-// }
+        if (result.affectedRows === 0) {
+            return NextResponse.json({ error: "Utilisateur non trouvé" }, { status: 404 });
+        }
+
+        return NextResponse.json({ message: "Utilisateur et ses liens supprimés" }, { status: 200 });
+
+    } catch (err) {
+        console.error("Erreur DELETE:", err);
+        return NextResponse.json({ error: "Erreur lors de la suppression" }, { status: 500 });
+    }
+}
+
+export async function PUT(req) {
+    try {
+        const body = await req.json();
+        const { id, name, firstname, num_tel_fixe, num_tel_portable, adresse_mail } = body;
+
+        if (!id) {
+            return NextResponse.json({ error: "L'identifiant de l'utilisateur est manquant." }, { status: 400 });
+        }
+
+        await db.query(
+            `UPDATE users 
+            SET name = ?, firstname = ?, num_tel_fixe = ?, num_tel_portable = ?, adresse_mail = ?
+            WHERE id = ?`,
+            [name, firstname, num_tel_fixe, num_tel_portable, adresse_mail, id]
+        );
+
+        return NextResponse.json({ message: "Utilisateur mis à jour avec succès" }, { status: 200 });
+
+    } catch (err) {
+        console.error("Erreur modification:", err);
+        return NextResponse.json({ error: "Erreur lors de la modification" }, { status: 500 });;
+    }
+}
