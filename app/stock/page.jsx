@@ -97,6 +97,7 @@ export default function Stock() {
 
     const filteredProduits = produits.filter((produit) =>
         produit.designation.toLowerCase().includes(searchTerm.toLowerCase()) || 
+        produit.fournisseur.toLowerCase().includes(searchTerm.toLowerCase()) ||
         produit.numero_de_serie.toLowerCase().includes(searchTerm.toLowerCase()) ||
         produit.adresse_mac.toLowerCase().includes(searchTerm.toLowerCase())
     );
