@@ -30,6 +30,9 @@ export default function PageEntreprise({ params }) {
     const [showListForUser, setShowListForUser] = useState(null);
     const [listProduitsForUser, setListProduitsForUser] = useState([]);
 
+    const [searchTermUser, setSearchTermUser] = useState("");
+    const [searchTermProduit, setSearchTermProduit] = useState("");
+
     async function fetchEntreprise() {
         try {
             const res = await fetch(`/api/entreprise/${encodeURIComponent(nomUrl)}`);
@@ -197,6 +200,21 @@ export default function PageEntreprise({ params }) {
 
     if (!entreprise) return <p className="p-10">Chargement...</p>;
 
+    const filteredProduits = listProduits.filter((produit) =>
+        produit.designation.toLowerCase().includes(searchTermProduit.toLowerCase()) ||
+        produit.numero_de_serie.toLowerCase().includes(searchTermProduit.toLowerCase())
+    );
+
+    const filteredUsers = users.filter((user) =>
+        user.name.toLowerCase().includes(searchTermUser.toLowerCase()) ||
+        user.firstname.toLowerCase().includes(searchTermUser.toLowerCase())
+    );
+
+    const filteredProduitsForUser = listProduitsForUser.filter((produit) =>
+        produit.designation.toLowerCase().includes(searchTermProduit.toLowerCase()) ||
+        produit.numero_de_serie.toLowerCase().includes(searchTermProduit.toLowerCase())
+    );
+
     return (
         <main className="p-6 mx-auto">
             <div className="max-w-4xl mx-auto">
@@ -239,9 +257,9 @@ export default function PageEntreprise({ params }) {
 
                 {showList && (
                     <table className="min-w-6xl justify-self-center">
-                        <thead>
+                        <thead className="bg-gray-200 text-gray-700">
                             <tr>
-                                <th className="p-3 flex gap-2 items-center bg-gray-200 text-gray-700">
+                                <th className="p-3 flex gap-2 items-center">
                                     <label>Nombre de lignes</label>
                                     <select className="border border-solid border-black rounded-sm p-1 bg-white" name="nb_row_shown" onChange={(e) => (setPrevious(Number(0)), setNext(Number(e.target.value)), setRowsShown(Number(e.target.value)), console.log(previous, next, rowsShown))}>
                                         <option value={10}>10</option>
@@ -250,6 +268,15 @@ export default function PageEntreprise({ params }) {
                                         <option value={100}>100</option>
                                     </select>
                                 </th>
+                                <td colSpan="6" className="p-2">
+                                    <input
+                                        type="text"
+                                        placeholder="Rechercher un produit (nom, numéro de série, ... )"
+                                        className="w-full p-2 bg-white border border-gray-300 rounded-lg shadow-sm focus:ring-2 focus:ring-blue-400 outline-none"
+                                        value={searchTermProduit}
+                                        onChange={(e) => searchTermProduit(e.target.value)}
+                                    />
+                                </td>
                             </tr>
                             <tr className="bg-gray-200 text-gray-700">
                                 <th className="p-3">Attribuer ?</th>
@@ -262,7 +289,7 @@ export default function PageEntreprise({ params }) {
                             </tr>
                         </thead>
                         <tbody>
-                            {listProduits.map((produit) => (
+                            {filteredProduits.map((produit) => (
                                 <tr key={produit.id} className="border-b border-r border-l hover:bg-gray-50">
                                     <td>
                                         <input className="flex m-auto w-4 h-4" type="checkbox" checked={produit.id_entreprise !== null} onChange={(e) => handleCheckboxChange(produit.id, e.target.checked)}/>
@@ -301,6 +328,15 @@ export default function PageEntreprise({ params }) {
                                         <option value={100}>100</option>
                                     </select>
                                 </th>
+                                <td colSpan="6" className="p-2">
+                                    <input
+                                        type="text"
+                                        placeholder="Rechercher un utilisateur (nom, prénom, ...)"
+                                        className="w-full p-2 bg-white border border-gray-300 rounded-lg shadow-sm focus:ring-2 focus:ring-blue-400 outline-none"
+                                        value={searchTermUser}
+                                        onChange={(e) => setSearchTermUser(e.target.value)}
+                                    />
+                                </td>
                             </tr>
                             <tr>
                                 <th className="p-3">Nom</th>
@@ -311,7 +347,7 @@ export default function PageEntreprise({ params }) {
                                 <th className="p-3 text-center">Action</th>
                             </tr>
                         </thead>
-                        {users.map((user) => (
+                        {filteredUsers.map((user) => (
                             <tbody key={user.id}>
                                 <tr className="border-b hover:bg-gray-50">
                                     {editingId === user.id ? (
@@ -354,10 +390,19 @@ export default function PageEntreprise({ params }) {
                                 {showListForUser === user.id && (
                                     <tr className="bg-blue-50">
                                         <td colSpan="6" className="p-4 border-b border-blue-200">
+                                            <div  className="p-2">
+                                                <input
+                                                    type="text"
+                                                    placeholder="Rechercher un produit (nom, numéro de série, ... )"
+                                                    className="w-full p-2 bg-white border border-gray-300 rounded-lg shadow-sm focus:ring-2 focus:ring-blue-400 outline-none"
+                                                    value={searchTermProduit}
+                                                    onChange={(e) => setSearchTermProduit(e.target.value)}
+                                                />
+                                            </div>
                                             <div className="bg-white p-4 rounded-lg border border-blue-100">                                              
                                                 <div className="grid grid-cols-3 gap-3">
-                                                    {listProduitsForUser.length > 0 ? (
-                                                        listProduitsForUser.map((produit) => (
+                                                    {filteredProduitsForUser.length > 0 ? (
+                                                        filteredProduitsForUser.map((produit) => (
                                                             <label key={produit.id} className="flex items-center gap-3 p-2 border rounded hover:bg-gray-50 cursor-pointer">
                                                                 <input type="checkbox" className="w-4 h-4" checked={produit.est_attribue !== null} onChange={(e) => handleCheckboxChangeUser(produit.id, user.id, e.target.checked)}/>
                                                                 <div className="flex flex-col">

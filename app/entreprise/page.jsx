@@ -14,6 +14,8 @@ export default function Entreprise() {
         reference_client: "",
     });
     const [error, setError] = useState("");
+    
+    const [searchTerm, setSearchTerm] = useState("");
 
     async function fetchEntreprise() {
         try {
@@ -89,6 +91,11 @@ export default function Entreprise() {
         }
     }
 
+    const filteredEntreprise = entreprises.filter((ent) =>
+        ent.nom.toLowerCase().includes(searchTerm.toLowerCase()) || 
+        ent.reference_client.toLowerCase().includes(searchTerm.toLowerCase())
+    );
+
     return (
         <main className="p-6 max-w-4xl mx-auto">
             <h1 className="text-2xl font-bold mb-6 text-blue-600">Gestion des Entreprises</h1>
@@ -132,11 +139,6 @@ export default function Entreprise() {
                 <table className="w-full text-left bg-white">
                     <thead className="bg-gray-200 text-gray-700">
                         <tr>
-                            <th className="p-3">Nom</th>
-                            <th className="p-3">Référence Client</th>
-                            <th className="p-3 text-right">Actions</th>
-                        </tr>
-                        <tr>
                             <th className="p-3 flex gap-2 items-center">
                                 <label>Nombre de lignes</label>
                                 <select className="border border-solid border-black rounded-sm p-1 bg-white" name="nb_row_shown" onChange={(e) => (setPrevious(Number(0)), setNext(Number(e.target.value)), setRowsShown(Number(e.target.value)), console.log(previous, next, rowsShown))}>
@@ -146,10 +148,24 @@ export default function Entreprise() {
                                     <option value={100}>100</option>
                                 </select>
                             </th>
+                            <td colSpan="6" className="p-2">
+                                <input
+                                    type="text"
+                                    placeholder="Rechercher une entreprise (nom, référence client)"
+                                    className="w-full p-2 bg-white border border-gray-300 rounded-lg shadow-sm focus:ring-2 focus:ring-blue-400 outline-none"
+                                    value={searchTerm}
+                                    onChange={(e) => setSearchTerm(e.target.value)}
+                                />
+                            </td>
+                        </tr>
+                        <tr>
+                            <th className="p-3">Nom</th>
+                            <th className="p-3">Référence Client</th>
+                            <th className="p-3 text-right">Actions</th>
                         </tr>
                     </thead>
                     <tbody>
-                        {entreprises.slice(previous, next).map((entreprise) => (
+                        {filteredEntreprise.slice(previous, next).map((entreprise) => (
                             <tr key={entreprise.id} className="border-b hover:bg-gray-50">
                                 <td className="p-3 font-medium">{entreprise.nom}</td>
                                 <td className="p-3 text-gray-600">{entreprise.reference_client}</td>

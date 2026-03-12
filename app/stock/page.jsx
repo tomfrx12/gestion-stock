@@ -18,6 +18,8 @@ export default function Stock() {
     });
     const [error, setError] = useState("");
 
+    const [searchTerm, setSearchTerm] = useState("");
+
     async function fetchProduits() {
         try {
             const res = await fetch("/api/stock");
@@ -92,6 +94,12 @@ export default function Stock() {
             setError(`Erreur : ${err.message}`);
         }
     }
+
+    const filteredProduits = produits.filter((produit) =>
+        produit.designation.toLowerCase().includes(searchTerm.toLowerCase()) || 
+        produit.numero_de_serie.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        produit.adresse_mac.toLowerCase().includes(searchTerm.toLowerCase())
+    );
 
     return (
         <main className="p-6">
@@ -168,6 +176,15 @@ export default function Stock() {
                                     <option value={100}>100</option>
                                 </select>
                             </th>
+                            <td colSpan="6" className="p-2">
+                                <input
+                                    type="text"
+                                    placeholder="Rechercher un produit (nom, numéro de série, ... )"
+                                    className="w-full p-2 bg-white border border-gray-300 rounded-lg shadow-sm focus:ring-2 focus:ring-blue-400 outline-none"
+                                    value={searchTerm}
+                                    onChange={(e) => setSearchTerm(e.target.value)}
+                                />
+                            </td>
                         </tr>
                         <tr>
                             <th className="p-3">Désignation</th>
@@ -180,7 +197,7 @@ export default function Stock() {
                         </tr>
                     </thead>
                     <tbody>
-                        {produits.slice(previous, next).map((produit) => (
+                        {filteredProduits.slice(previous, next).map((produit) => (
                             <tr key={produit.id} className="border-b hover:bg-gray-50">
                                 <td className="p-3 font-medium">{produit.designation}</td>
                                 <td className="p-3">{produit.fournisseur}</td>
