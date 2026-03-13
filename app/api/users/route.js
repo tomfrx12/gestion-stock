@@ -15,6 +15,7 @@ export async function GET(req) {
             JOIN membre ON users.id = membre.id_user
             JOIN entreprise ON membre.id_entreprise = entreprise.id
             WHERE entreprise.nom = ?
+            ORDER By id DESC
         `, [nomBoite]);
 
         return NextResponse.json(rows);

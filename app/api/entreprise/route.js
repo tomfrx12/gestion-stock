@@ -3,7 +3,7 @@ import { db } from "../../../lib/db";
 
 export async function GET() {
     try {
-        const [rows] = await db.query("SELECT * FROM entreprise");
+        const [rows] = await db.query("SELECT * FROM entreprise ORDER BY id DESC");
         return NextResponse.json(rows);
     } catch (err) {
         console.error("Erreur GET:", err);
