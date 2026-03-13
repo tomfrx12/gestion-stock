@@ -1,56 +1,56 @@
-# Gestion de stock
+# Gestion de Stock & Inventaire
 
-Application Next.js (TypeScript) minimale pour gérer le stock d'articles.
+Application Fullstack moderne développée avec **Next.js** pour la gestion d'inventaire, le suivi des entreprises et l'attribution de matériel aux collaborateurs.
 
-## Présentation
+## Fonctionnalités Clés
 
-Ce projet est le début de mon apprentisage dans mon stage chez SkyNet Business Services
+* **Inventaire Dynamique** : Gestion complète (CRUD) des produits (Désignation, Fournisseur, S/N, MAC, Dates).
+* **Recherche Intelligente** : Barre de recherche globale filtrant en temps réel.
+* **Logique Métier Avancée** :
+    * Attribution de produits aux entreprises.
+    * Attribution granulaire aux utilisateurs/employés.
+    * **Intégrité des données** : Le déréférencement d'un produit au niveau de l'entreprise nettoie automatiquement les attributions utilisateurs en base de données.
+* **Interface Responsive** : Design épuré avec Tailwind CSS, incluant une pagination ajustable et des formulaires animés.
 
-Ce dépôt contient une petite application Next.js avec l'architecture `app/` (App Router). Elle expose une API pour la gestion du stock dans `app/api/stock/route.ts` et contient la logique d'accès aux données dans `lib/db.ts`.
+## Structure Technique
 
+### Architecture des API (`app/api/`)
+- **`/stock`** : Gestion du stock central (GET, POST, PUT, DELETE).
+- **`/entreprise`** : Gestion des entreprises.
+- **`/users`** : Gestion des utilisateurs.
+- **`/attribuer/entreprise`** : Liaison Produit ↔ Entreprise et logique de nettoyage.
+- **`/attribuer/user`** : Liaison Produit ↔ Utilisateur.
+
+### Stack Technologique
+- **Framework** : Next.js 14+ (App Router)
+- **Base de données** : MySQL
+- **ORM/Query Builder** : Accès direct via `mysql2` ([`lib/db.ts`](lib/db.ts))
+- **Styling** : Tailwind CSS
+
+## Installation & Lancement
+
+1. **Cloner le projet** :
+   ```sh
+   git clone https://github.com/tomfrx12/gestion-stock.git
+   cd gestion-stock
+2. **Installer les dépendances** :
+    ```sh
+    npm install
+3. **Configuration de l'environnement** :
+
+    Créer un fichier .env à la racine et configurer les accès MySQL :
+    ```sh
+    HOST=localhost
+    USER=root
+    PASSWORD=secret
+    DATABASE=bd
+4. **Lancer le serveur de développement** :
+    ```sh
+    npm run dev
 ## Prérequis
+Node.js 18+
 
-- Node.js 16 ou supérieur
-- npm
+Instance MySQL active
 
-## Installation
-
-1. Installer les dépendances :
-
-```bash
-npm install
-```
-
-2. Lancer en développement :
-
-```bash
-npm run dev
-```
-
-3. Construire pour la production :
-
-```bash
-npm run build
-npm start
-```
-
-## Structure principale
-
-- `app/` : pages et routes (App Router)
-  - `app/api/stock/route.ts` : endpoints API pour la gestion du stock
-- `lib/db.ts` : point d'entrée pour la connexion / accès aux données
-- `public/` : fichiers statiques
-- `next.config.ts`, `tsconfig.json`, `package.json` : configuration du projet
-
-## Configuration
-
-- Si votre application utilise une base de données, configurez la connexion dans `lib/db.ts` ou via les variables d'environnement que vous y utiliserez.
-- Voir le fichier `app/api/stock/route.ts` pour connaître les routes exposées et les méthodes attendues (GET/POST/etc.).
-
-## Utilisation rapide
-
-- Testez les endpoints API avec `curl`, Postman ou Insomnia vers `/api/stock` (ex: `http://localhost:3000/api/stock`).
-
-## Auteur
-
-Tom Fourneaux
+##  Auteur
+Tom FOURNEAUX
